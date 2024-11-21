@@ -1,0 +1,8 @@
+# /etc/postfix/generic
+
+# Maps local addresses to the verified domain address
+root@localhost      admin@acclivusinc.org 
+root@hostname       admin@acclivusinc.org
+@localhost          admin@acclivusinc.org
+@hostname           admin@acclivusinc.org
+@49e93eb32cc0       admin@acclivusinc.org

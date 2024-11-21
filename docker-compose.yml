@@ -1,0 +1,74 @@
+version: '3.8'
+
+services:
+  nginx:
+    build: ./nginx
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx/redcap:/var/www/html
+      -  nginx-logs:/var/log/nginx
+    depends_on:
+      - php-fpm-container
+      - mysql
+    networks:
+      - redcap-network
+    restart: always
+  php-fpm-container:
+    build: 
+      context: ./php
+      args:
+        EMAIL: ${EMAIL}
+        EMAIL_PASSWORD: ${EMAIL_PASSWORD}
+        MAIL_NAME: ${MAIL_NAME}
+        SMTP_DOMAIN: ${SMTP_DOMAIN}
+        SMTP_PORT: ${SMTP_PORT}
+        HOSTNAME: ${HOSTNAME}
+    volumes:
+      - ./nginx/redcap:/var/www/html
+      -  php-sessions:/var/lib/php/sessions
+    networks:
+      - redcap-network
+    ports:
+      - 9000:9000
+        #  - 587:587
+    restart: always
+  mysql:
+    image: mysql:8.0
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+    ports:
+      - "3306:3306"
+    volumes:
+      - ./mysql:/docker-entrypoint-initdb.d
+      - mysql-data:/var/lib/mysql
+    networks:
+      - redcap-network
+    restart: always   
+  portainer:
+    image: portainer/portainer-ce:latest
+    container_name: portainer
+    ports:
+      - 9001:9000
+    volumes:
+      - portainer_data:/data
+      - /var/run/docker.sock:/var/run/docker.sock
+    restart: unless-stopped
+    networks:
+      - redcap-network
+
+
+networks:
+  redcap-network:
+    driver: bridge
+
+volumes:
+  nginx-logs:                                  # Volume for Nginx logs
+  php-sessions:                                # Volume for PHP session files
+  mysql-data:                                  # Volume for MySQL data storage
+  portainer_data:
+
+

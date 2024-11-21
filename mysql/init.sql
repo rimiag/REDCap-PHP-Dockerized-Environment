@@ -1,0 +1,3 @@
+CREATE DATABASE IF NOT EXISTS redcap;
+GRANT ALL PRIVILEGES ON redcap.* TO 'redcap_user'@'%' IDENTIFIED BY 'your_mysql_password';
+FLUSH PRIVILEGES;
